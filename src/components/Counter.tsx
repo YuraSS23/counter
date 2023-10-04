@@ -4,7 +4,9 @@ import {Button} from './Button';
 
 export const Counter = () => {
 
-    const [number, setNumber] = useState<number>(0)
+    const [number, setNumber] = useState<number>(()=>{
+        return Number(localStorage.getItem('setStartValue')) || 0
+    })
     const [disableButton, setDisableButton] = useState<boolean>(false)
 
     const [maxValue, setMaxValue] = useState( ()=>{
