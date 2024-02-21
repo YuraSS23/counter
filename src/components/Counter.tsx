@@ -1,44 +1,43 @@
-import React, {ChangeEvent, useEffect, useState} from 'react';
+import React, {ChangeEvent} from 'react';
 import s from './Counter.module.css'
 import {Button} from './Button';
+import {useDispatch, useSelector} from "react-redux";
+import {
+    changeMaxValueAC,
+    changeStartValueAC,
+    InitialStateType,
+    numberChangeAC,
+    numberResetAC,
+    setStartValueAC
+} from "../redux/reducer";
+import {RootStateType} from "../redux/store";
 
 export const Counter = () => {
 
-    const [number, setNumber] = useState<number>(()=>{
-        return Number(localStorage.getItem('setStartValue')) || 0
-    })
-    const [disableButton, setDisableButton] = useState<boolean>(false)
-
-    const [maxValue, setMaxValue] = useState( ()=>{
-        return Number(localStorage.getItem('setMaxValue')) || 0
-    })
-    const [startValue, setStartValue] = useState(()=>{
-        return Number(localStorage.getItem('setStartValue')) || 0
-    })
+    const dispatch = useDispatch()
+    const state = useSelector<RootStateType, InitialStateType>(state => state.counter)
 
     const numberChange = () => {
-        setNumber(number + 1);
-        (number < maxValue - 1 ? setDisableButton(false) : setDisableButton(true))
+        dispatch(numberChangeAC())
     }
 
     const numberReset = () => {
-        setNumber(startValue)
-        setDisableButton(false)
+        dispatch(numberResetAC())
     }
 
     const changeMaxValue = (e: ChangeEvent<HTMLInputElement>) => {
         if (Number(e.currentTarget.value)>-2 && Number(e.currentTarget.value)<25) {
-            setMaxValue(Number(e.currentTarget.value))
+            dispatch(changeMaxValueAC(Number(e.currentTarget.value)))
         }
     }
 
     const changeStartValue = (e: ChangeEvent<HTMLInputElement>) => {
         if (Number(e.currentTarget.value)>-2 && Number(e.currentTarget.value)<25) {
-            setStartValue(Number(e.currentTarget.value))
+            dispatch(changeStartValueAC(Number(e.currentTarget.value)))
         }
     }
 
-    useEffect(()=> {
+/*    useEffect(()=> {
         localStorage.setItem('setMaxValue', JSON.stringify(maxValue))
     }, [maxValue])
 
@@ -60,33 +59,35 @@ export const Counter = () => {
             let newStartValue = JSON.parse(startValueLocal)
             setStartValue(newStartValue)
         }
-    }, [])
+    }, [])*/
 
     const setButton = () => {
-        if (maxValue > startValue && startValue >= 0) {
-            setNumber(startValue)
+        if (state.maxValue > state.startValue && state.startValue >= 0) {
+            dispatch(setStartValueAC())
         }
     }
+
+    const error = state.startValue<0 || state.maxValue<0 || state.startValue >= state.maxValue
 
     return (
         <div className={s.wrapper}>
             <div className={s.counter}>
                 <div className={s.settings}>
-                    <div>Max value:<input onChange={changeMaxValue} value={maxValue} type={'number'}/></div>
-                    <div>Start value:<input onChange={changeStartValue} value={startValue} type={'number'}/></div>
+                    <div>Max value:<input onChange={changeMaxValue} value={state.maxValue} type={'number'}/></div>
+                    <div>Start value:<input onChange={changeStartValue} value={state.startValue} type={'number'}/></div>
                 </div>
                 <div className={s.buttons}>
                     <Button name={'set'} callBack={setButton}
-                            disabled={maxValue <= startValue || startValue < 0 || maxValue < 0}/>
+                            disabled={state.maxValue <= state.startValue || state.startValue < 0 || state.maxValue < 0 || !state.valueChanges}/>
                 </div>
             </div>
             <div className={s.counter}>
-                {startValue<0 || maxValue<0
-                    ? <div className={s.tablo}>error</div>
-                    : <div className={number === maxValue ? (`${s.tabloChange} + ${s.tablo}`) : s.tablo}>{number}</div>}
+                { error ? <div className={s.error}>Error</div>
+                    : state.valueChanges ? <div className={s.setvalue}>Set value</div>
+                        : <div className={state.currentValue === state.maxValue ? (`${s.tabloChange} + ${s.tablo}`) : s.tablo}>{state.currentValue}</div>}
                 <div className={s.buttons}>
-                    <Button name={'inc'} callBack={numberChange} disabled={disableButton}/>
-                    <Button name={'reset'} callBack={numberReset} disabled={number === 0}/>
+                    <Button name={'inc'} callBack={numberChange} disabled={state.disableButton}/>
+                    <Button name={'reset'} callBack={numberReset} disabled={state.currentValue === state.startValue || error || state.valueChanges}/>
                 </div>
             </div>
         </div>

@@ -72,3 +72,30 @@
     margin-top: 50px;
     gap: 50px;
 }
+.error {
+    height: 300px;
+    width: 300px;
+    border: 1px solid #5C469C;
+    background-color: #5C469C;
+    font-size: 100px;
+    margin: 30px;
+    border-radius: 5px;
+    color: #D4ADFC;
+    color: red;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.setvalue {
+    height: 300px;
+    width: 300px;
+    border: 1px solid #5C469C;
+    background-color: #5C469C;
+    font-size: 50px;
+    margin: 30px;
+    border-radius: 5px;
+    color: #D4ADFC;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
